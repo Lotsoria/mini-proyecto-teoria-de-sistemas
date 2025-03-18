@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extraer fragmento de audio</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='extraer_audio_style.css') }}">
+</head>
+<body>
+    <div class="title">
+        <h1>Extraer fragmento de audio</h1>
+    </div>
+    <div class="menu">
+        <form action="{{ url_for('extraer_audio') }}" method="post">
+            <ul class="list-menu">
+                <li>
+                    <label for="segundos">Segundos a extraer:</label>
+                    <input type="number" name="segundos" placeholder="Segundos" required>
+                </li>
+                <li>
+                    <label for="inicio">Inicio (segundos):</label>
+                    <input type="number" name="inicio" placeholder="Inicio (segundos)" required>
+                </li>
+                <li>
+                    <input type="hidden" name="opcion" value="3">
+                    <button type="submit">Extraer y Reproducir</button>
+                </li>
+            </ul>
+        </form>
+        
+        <form action="{{ url_for('extraer_audio') }}" method="post">
+            <ul class="list-menu">
+                <li>
+            <input type="hidden" name="opcion" value="5">
+            <button type="submit" value="5">Detener reproducción</button>
+                </li>
+            </ul>
+        </form>
+        
+        <form action="{{ url_for('extraer_audio') }}" method="post">
+            <ul class="list-menu">
+                <li>
+                    <input type="hidden" name="opcion" value="6">
+                    <button type="submit" value="6">Regresar</button>
+                </li>
+            </ul>
+        </form>
+        
+        {% if duracion %}
+        <div>
+            <p>Duración del audio: {{ duracion_total }}</p>
+            <p>Duración del audio extraído: {{ duracion }} segundos</p>
+            <p>Inicio: {{ inicio }} segundos</p>
+            <p>Fin: {{ fin }} segundos</p>
+            <p>Tiempo transcurrido: <span id="contador">0</span> segundos de {{ duracion }} segundos</p>
+        </div>
+        </div>
+        {% endif %}
+        {% if error %}
+        <div>
+            <p>No es posible extraer un fragmento que exceda la duración del audio.</p>
+            <p>Duración total: {{ duracion_total }}</p>
+            <p>Duración esperada: {{ duracion_ingresada }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var contadorSpan = document.getElementById("contador");
+            var duracionTotal =" {{ duracion }}"; // Obtiene la duración desde Flask como número
+            var tiempo = 0;
+            console.log(duracionTotal);
+    
+            function actualizarContador() {
+                if (tiempo <= duracionTotal) {
+                    console.log(tiempo);
+                    contadorSpan.textContent = tiempo;
+                    tiempo++;
+                    setTimeout(actualizarContador, 1000); // Llamar cada segundo
+                }
+            }
+    
+            actualizarContador(); // Inicia el contador
+        });
+    </script>
+</body>
+
+
+</html>

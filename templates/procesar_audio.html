@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procesar Audio</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='procesar_audio_style.css') }}">
+</head>
+<body>
+    <div class="title">
+        <h1>Procesamiento de Audio</h1>
+    </div>
+
+    <form action="{{ url_for('procesar_audio') }}" method="post">
+        <button type="submit">Procesar Audio</button>
+    </form>
+
+    {% if img_base64 %}
+    <h2>Resultados</h2>
+    <img src="data:image/png;base64,{{ img_base64 }}" alt="Gráfica de audio">
+    
+    <h3>Reproducir Audio Modificado</h3>
+    <audio controls>
+        <source src="{{ audio_url }}" type="audio/wav">
+        Tu navegador no soporta el elemento de audio.
+    </audio>
+    {% endif %}
+</body>
+</html>

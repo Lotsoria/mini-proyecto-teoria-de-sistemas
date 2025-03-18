@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Miniproyecto</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='extraer_audio_style.css') }}">
+</head>
+<body>
+    <div class="title">
+        <h1>Bienvenidos a mi miniproyecto</h1>
+    </div>
+    <div class="menu">
+        <h2 class="title-menu">Menú</h2>
+        <form action="{{ url_for('opcion') }}" method="post">
+            <ul class="list-menu">
+                <li><button type="submit" name="opcion" value="1">Reproducir audio</button></li>
+                <li><button type="submit" name="opcion" value="2">Reflejar</button></li>
+                <li><button type="submit" name="opcion" value="3">Aumentar amplitud</button></li>
+                <li><button type="submit" name="opcion" value="4">Extraer fragmento de audio</button></li>
+                <li><button type="submit" name="opcion" value="5">Inciso e</button></li>
+                <li><button type="submit" name="opcion" value="6">Inciso f</button></li>
+                <li><button type="submit" name="opcion" value="7">Detener reproducción</button></li>
+            </ul>
+        </form>
+    </div>
+</body>
+</html>

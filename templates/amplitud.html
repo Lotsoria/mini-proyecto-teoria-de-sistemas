@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aumentar/Disminuir Amplitud</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='amplitud.css') }}">
+</head>
+<body>
+    <div class="title">
+        <h1>Aumentar/Disminuir Amplitud</h1>
+    </div>
+    <div class="menu">
+
+        <form action="{{ url_for('amplitud') }}" method="post">
+            <ul class="list-menu">
+                <li>
+                    <label>
+                        <input type="radio" name="opcionAumento" value="1" required> Aumentar amplitud
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <input type="radio" name="opcionAumento" value="2" required> Disminuir amplitud
+                    </label>
+                </li>
+                <li>
+                    <input type="number" step="0.1" name="aumento" placeholder="Factor de aumento (0 a 1)" min="0" max="1" required>
+                </li>
+                <li>
+                    <button type="submit">Aplicar</button>
+                </li>
+            </ul>
+        </form>
+
+
+        <form action="{{ url_for('amplitud') }}" method="post">
+            <ul class="list-menu">
+                <li>
+                    <input type="hidden" name="opcionAumento" value="5">
+                    <button type="submit" value="5">Detener reproducción</button>
+                </li>
+            </ul>
+        </form>
+
+        <form action="{{ url_for('amplitud') }}" method="post">
+            <ul class="list-menu">
+                <li>
+                    <input type="hidden" name="opcionAumento" value="6">
+                    <button type="submit" value="6">Regresar</button>
+                </li>
+            </ul>
+        </form>
+    </div>
+</body>
+</html>

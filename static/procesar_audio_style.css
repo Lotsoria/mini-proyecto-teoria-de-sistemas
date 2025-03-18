@@ -1,0 +1,103 @@
+/* Estilos generales */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+}
+.title {
+    background: #007bff;
+    color: white;
+    width: 100%;
+    height: 20%;
+    text-align: center;
+    align-content: center;
+    padding: 15px 0;
+    margin-bottom: 20px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+.title h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+/* Contenedor principal */
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 90%;
+}
+
+/* Título principal */
+h1 {
+    background: #007bff;
+    color: white;
+    padding: 15px;
+    border-radius: 10px 10px 0 0;
+    margin: 0;
+    font-size: 24px;
+}
+
+/* Botón de procesamiento */
+button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 15px;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+/* Sección de resultados */
+h2 {
+    color: #007bff;
+    margin-top: 20px;
+}
+
+/* Imagen de la gráfica */
+img {
+    max-width: 100%;
+    height: auto;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+/* Reproductor de audio */
+audio {
+    margin-top: 20px;
+    width: 100%;
+}
+
+/* Responsivo para móviles */
+@media (max-width: 600px) {
+    .container {
+        width: 95%;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    button {
+        font-size: 16px;
+        padding: 8px 15px;
+    }
+}

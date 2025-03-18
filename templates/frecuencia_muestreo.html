@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seleccciones la frecuencia de muestreo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='frecuencia_muestreo_style.css') }}">
+</head>
+<body>
+    <div class="title">
+        <h1>Seleccione la frecuencia de muestreo</h1>
+    </div>
+    <div class="menu">
+        <form action="{{ url_for('frecuencia_muestreo') }}" method="post">
+            <ul class="list-menu">
+                <li>
+                    <label>
+                        <input type="radio" name="frecuencia" value="44100" required> 44100 Hz (estándar)
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <input type="radio" name="frecuencia" value="22050" required> 22050 Hz
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <input type="radio" name="frecuencia" value="70000" required> 70000 Hz
+                    </label>
+                </li>
+                <li>
+                    <button type="submit">Aplicar</button>
+                </li>
+            </ul>
+        </form>
+        <form action="{{ url_for('frecuencia_muestreo') }}" method="post">
+            <ul class="list-menu">
+                <li>
+                    <input type="hidden" name="frecuencia" value="5">
+                    <button type="submit" value="5">Detener reproducción</button>
+                </li>
+            </ul>
+        </form>
+        <form action="{{ url_for('frecuencia_muestreo') }}" method="post">
+            <ul class="list-menu">
+                <li>
+                    <input type="hidden" name="frecuencia" value="6">
+                    <button type="submit" value="6">Regresar</button>
+                </li>
+            </ul>
+        </form>
+
+</body>
+</html>
