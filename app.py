@@ -1,14 +1,18 @@
 from flask import Flask, render_template, request, redirect, url_for
+from datetime import datetime
+from scipy.io import wavfile
+from scipy.signal import resample, butter, lfilter
 import sounddevice as sd
 import soundfile as sf
-
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.io import wavfile
-from scipy.signal import resample
 import io
 import base64
+import matplotlib
 
+
+
+matplotlib.use('Agg') 
 
 app = Flask(__name__)
 
@@ -27,6 +31,43 @@ def reproducir(x, FS):
         # sd.wait()  # No es necesario esperar a que termine la reproducción
     except Exception as e:
         print(f"Error al reproducir el audio: {e}")
+        
+# Función para aplicar un filtro pasa-bajos (bajos al lado izquierdo)
+def lowpass_filter(data, cutoff, fs, order=5):
+    nyquist = 0.5 * fs
+    normal_cutoff = cutoff / nyquist
+    b, a = butter(order, normal_cutoff, btype='low', analog=False)
+    return lfilter(b, a, data)
+
+# Función para aplicar un filtro pasa-altos (altos al lado derecho)
+def highpass_filter(data, cutoff, fs, order=5):
+    nyquist = 0.5 * fs
+    normal_cutoff = cutoff / nyquist
+    b, a = butter(order, normal_cutoff, btype='high', analog=False)
+    return lfilter(b, a, data)
+
+# Función para convertir mono a estéreo separando bajos y altos
+def make_stereo_with_freq_split(input_file, output_file, cutoff=1000):
+    """Convierte un archivo mono a estéreo separando bajos (izquierda) y altos (derecha)"""
+    
+    # Leer el archivo de audio
+    x, FS = sf.read(input_file, dtype='float32')
+
+    # Verificar si el archivo es mono
+    if len(x.shape) > 1:
+        print("El archivo ya es estéreo.")
+        return
+
+    # Aplicar filtros
+    left_channel = lowpass_filter(x, cutoff, FS)  # Bajos al canal izquierdo
+    right_channel = highpass_filter(x, cutoff, FS)  # Altos al canal derecho
+
+    # Crear el nuevo audio estéreo combinando ambos canales
+    x_stereo = np.column_stack((left_channel, right_channel))
+
+    # Guardar el nuevo archivo estéreo
+    sf.write(output_file, x_stereo, FS)
+    print(f"Archivo estéreo generado con bajos a la izquierda y altos a la derecha: {output_file}");
 
 # Ruta principal
 @app.route('/')
@@ -53,6 +94,8 @@ def opcion():
         return redirect(url_for('mostrar_extraer_audio'))
     elif opcion == 5:
         return redirect(url_for('procesar_audio'))
+    elif opcion == 6:
+        return redirect(url_for('intercambio_canales'))
 
     return redirect(url_for('index'))
 
@@ -153,57 +196,97 @@ def extraer_audio():
 @app.route('/procesar_audio', methods=['GET', 'POST'])
 def procesar_audio():
     if request.method == 'POST':
-        x, FS = sf.read('./static/Happy - Mono2.wav', dtype='float32')
-        inicio = 10
-        duracion = 5
+        try:
+            x, FS = sf.read('./static/Happy - Mono2.wav', dtype='float32')
+            inicio = 10  
+            duracion = 5 
 
-        inicio_muestras = int(inicio * FS)
-        fin_muestras = int((inicio + duracion) * FS)
-        fragmento_original = x[inicio_muestras:fin_muestras]
+            inicio_muestras = int(inicio * FS)
+            fin_muestras = int((inicio + duracion) * FS)
+            fragmento_original = x[inicio_muestras:fin_muestras]
 
-        # Aplicar escalamiento de amplitud de 1.5
-        fragmento_amplificado = 1.5 * fragmento_original
+            fragmento_amplificado = 1.5 * fragmento_original
 
-        # Crear un retraso de 5 segundos agregando ceros al inicio
-        retraso = np.zeros(int(5 * FS))
-        fragmento_retrasado = np.concatenate((retraso, fragmento_amplificado))
+            retraso = np.zeros(int(5 * FS))
+            fragmento_retrasado = np.concatenate((retraso, fragmento_amplificado))
 
-        # Graficar ambas señales
-        tiempo_original = np.linspace(0, duracion, len(fragmento_original))
-        tiempo_modificado = np.linspace(0, duracion + 5, len(fragmento_retrasado))
+            plt.close('all')
+            
+            tiempo_original = np.linspace(0, duracion, len(fragmento_original))
+            tiempo_modificado = np.linspace(0, duracion + 5, len(fragmento_retrasado))
 
-        plt.figure(figsize=(10, 4))
+            plt.figure(figsize=(10, 4))
+            
+            plt.subplot(1, 2, 1)
+            plt.stem(tiempo_original[::50], fragmento_original[::50], linefmt='b-', markerfmt='bo', basefmt='r-')
+            plt.title("Fragmento Original")
+            plt.xlabel("Tiempo (s)")
+            plt.ylabel("Amplitud")
+            
+            plt.subplot(1, 2, 2)
+            plt.stem(tiempo_modificado[::50], fragmento_retrasado[::50], linefmt='g-', markerfmt='go', basefmt='r-')
+            plt.title("Escalado y Retrasado")
+            plt.xlabel("Tiempo (s)")
+            plt.ylabel("Amplitud")
+            
+            plt.tight_layout()
 
-        # Señal original
-        plt.subplot(1, 2, 1)
-        plt.stem(tiempo_original, fragmento_original, linefmt='b-', markerfmt='bo', basefmt='r-')
-        plt.title("Fragmento Original")
-        plt.xlabel("Tiempo (s)")
-        plt.ylabel("Amplitud")
+            img_io = io.BytesIO()
+            plt.savefig(img_io, format='png')
+            img_io.seek(0)
+            img_base64 = base64.b64encode(img_io.getvalue()).decode('utf-8')
+            plt.close()
 
-        # Señal modificada
-        plt.subplot(1, 2, 2)
-        plt.stem(tiempo_modificado, fragmento_retrasado, linefmt='g-', markerfmt='go', basefmt='r-')
-        plt.title("Escalado y Retrasado")
-        plt.xlabel("Tiempo (s)")
-        plt.ylabel("Amplitud")
+            sf.write('./static/audio_modificado.wav', fragmento_retrasado.astype(np.float32), FS)
 
-        plt.tight_layout()
+            print(f"Longitud de la imagen base64: {len(img_base64)}")
 
-        # Guardar la imagen en memoria y convertirla a base64
-        img_io = io.BytesIO()
-        plt.savefig(img_io, format='png')
-        img_io.seek(0)
-        img_base64 = base64.b64encode(img_io.getvalue()).decode('utf-8')
-        plt.close()
+            # reproducir(fragmento_retrasado, FS)
 
-        # Guardar el nuevo audio modificado para reproducirlo
-        sf.write('./static/audio_modificado.wav', fragmento_retrasado, FS)
-
-        return render_template('procesar_audio.html', audio_url=url_for('static', filename='audio_modificado.wav'),
-                               img_base64=img_base64)
-
+            return render_template('procesar_audio.html', audio_url=url_for('static', filename='audio_modificado.wav'),
+                                img_base64=img_base64)
+        except Exception as e:
+            print(f"Error procesando el audio: {e}")
+            return render_template('procesar_audio.html', error=str(e))
     return render_template('procesar_audio.html')
+
+@app.route('/intercambio_canales', methods=['GET', 'POST'])
+def intercambio_canales():
+    timestamp = int(datetime.now().timestamp())
+    if request.method == 'POST':
+        try:
+            archivo_entrada = "./static/Happy - Mono2.wav"  # Asegúrate de que este sea el nombre correcto
+            archivo_salida = "./static/audio_stereo.wav"  # Nombre del nuevo archivo estéreo
+
+            x, FS = sf.read(archivo_entrada, dtype='float32')
+            if len(x.shape) == 1:
+                print("El archivo es mono, convirtiéndolo a estéreo...")
+                # x_stereo = np.column_stack((x, x)) 
+                make_stereo_with_freq_split(archivo_entrada, archivo_salida)
+                x_stereo, FS = sf.read(archivo_salida, dtype='float32')
+                print(len(x_stereo.shape))
+                
+            opcion = request.form['opcion']
+            print("Opcion",opcion)
+            if opcion == '1':
+                inicio = 0  
+                duracion = 5
+                inicio_muestra = int(inicio * FS)
+                fin_muestra = int((inicio + duracion) * FS)
+                x_recortado = x_stereo[inicio_muestra:fin_muestra]
+                sf.write(archivo_salida, x_recortado, FS)
+                return render_template('intercambiar_canales.html', audio_url=archivo_salida, timestamp=timestamp)
+            elif opcion == '2':
+                x_intercambiado = np.copy(x_stereo)
+                x_intercambiado[:, [0, 1]] = x_stereo[:, [1, 0]]
+                sf.write(archivo_salida, x_intercambiado, FS)
+                return render_template('intercambiar_canales.html', audio_url=archivo_salida, timestamp=timestamp)
+
+        except Exception as e:
+            print(f"Error en intercambio de canales: {e}")
+            return render_template('intercambiar_canales.html', error=str(e))
+    return render_template('intercambiar_canales.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

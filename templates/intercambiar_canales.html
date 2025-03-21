@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intercambiar Canales</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='amplitud.css') }}">
+</head>
+<body>
+    <div class="title">
+        <h1>Intercambiar canales en audio estéreo</h1>
+    </div>
+
+    <div class="menu">
+        <form action="{{ url_for('intercambio_canales') }}" method="post">
+            <ul class="list-menu">
+                <li>
+                    <label>
+                        <input type="radio" name="opcion" value="1" required> Reproducir archivo de 2 canales
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <input type="radio" name="opcion" value="2" required> Intercambiar los canales izquierdo y derecho
+                    </label>
+                </li>
+                <li>
+                    <button type="submit">Aplicar</button>
+                </li>
+            </ul>
+        </form>
+
+        {% if audio_url %}
+            <h3>Reproducir Audio</h3>
+            <audio controls>
+                <source src="{{ audio_url }}?v={{ timestamp }}" type="audio/wav">
+                Tu navegador no soporta el elemento de audio.
+            </audio>
+        {% endif %}
+
+        <form action="{{ url_for('index') }}" method="get">
+            <ul class="list-menu">
+                <li>
+                    <button type="submit">Regresar</button>
+                </li>
+            </ul>
+        </form>
+    </div>
+</body>
+</html>

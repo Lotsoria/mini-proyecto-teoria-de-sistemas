@@ -15,15 +15,15 @@
         <button type="submit">Procesar Audio</button>
     </form>
 
-    {% if img_base64 %}
-    <h2>Resultados</h2>
-    <img src="data:image/png;base64,{{ img_base64 }}" alt="Gráfica de audio">
-    
-    <h3>Reproducir Audio Modificado</h3>
-    <audio controls>
-        <source src="{{ audio_url }}" type="audio/wav">
-        Tu navegador no soporta el elemento de audio.
-    </audio>
+    {% if img_base64 and audio_url %}
+        <h2>Resultados</h2>
+        <img src="data:image/png;base64,{{ img_base64 }}" alt="Gráfica de audio">
+        
+        <h3>Reproducir Audio Modificado</h3>
+        <audio controls>
+            <source src="{{ audio_url }}" type="audio/wav">
+            Tu navegador no soporta el elemento de audio.
+        </audio>
     {% endif %}
 </body>
 </html>
